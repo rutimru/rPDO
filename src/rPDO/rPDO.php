@@ -24,19 +24,19 @@ use Psr\Container\ContainerInterface;
 use rPDO\Om\rPDOCriteria;
 use rPDO\Om\rPDOQuery;
 
-if (!defined('VPDO_CORE_PATH')) {
+if (!defined('RPDO_CORE_PATH')) {
     $vpdo_core_path= strtr(realpath(dirname(__FILE__)), '\\', '/') . '/';
     /**
      * @var string Полный путь к корневому каталогу rPDO.
      */
-    define('VPDO_CORE_PATH', $vpdo_core_path);
+    define('RPDO_CORE_PATH', $vpdo_core_path);
     unset($vpdo_core_path);
 }
-if (!defined('VPDO_CLI_MODE')) {
+if (!defined('RPDO_CLI_MODE')) {
     /**
      * @var bool Указывает, является ли PHP_SAPI cli.
      */
-    define('VPDO_CLI_MODE', PHP_SAPI === 'cli');
+    define('RPDO_CLI_MODE', PHP_SAPI === 'cli');
 }
 
 /**
@@ -309,7 +309,7 @@ class rPDO {
             $this->config = array_merge($this->config, $this->getConnection($initOptions)->config);
             $this->getDriver();
             $this->map = new rPDOMap($this);
-            $this->setPackage('Om', VPDO_CORE_PATH, $this->config[rPDO::OPT_TABLE_PREFIX]);
+            $this->setPackage('Om', RPDO_CORE_PATH, $this->config[rPDO::OPT_TABLE_PREFIX]);
             if (isset($this->config[rPDO::OPT_BASE_PACKAGES]) && !empty($this->config[rPDO::OPT_BASE_PACKAGES])) {
                 $basePackages= explode(',', $this->config[rPDO::OPT_BASE_PACKAGES]);
                 foreach ($basePackages as $basePackage) {
@@ -471,8 +471,8 @@ class rPDO {
         $added= false;
         if (is_string($pkg) && !empty($pkg)) {
             if (!is_string($path) || empty($path)) {
-                $this->log(rPDO::LOG_LEVEL_ERROR, "Invalid path specified for package: {$pkg}; using default vpdo model path: " . VPDO_CORE_PATH . 'Om/');
-                $path= VPDO_CORE_PATH . 'Om/';
+                $this->log(rPDO::LOG_LEVEL_ERROR, "Invalid path specified for package: {$pkg}; using default vpdo model path: " . RPDO_CORE_PATH . 'Om/');
+                $path= RPDO_CORE_PATH . 'Om/';
             }
             if (!is_dir($path)) {
                 $this->log(rPDO::LOG_LEVEL_ERROR, "Path specified for package {$pkg} is not a valid or accessible directory: {$path}");
@@ -592,7 +592,7 @@ class rPDO {
      *
      * который будет переведен в:
      *
-     *    VPDO_CORE_PATH/Om/dir_a/dir_b/dir_c/dbtype/classname.class.php
+     *    RPDO_CORE_PATH/Om/dir_a/dir_b/dir_c/dbtype/classname.class.php
      *
      * As of rPDO 3.0, the use of loadClass is only necessary to support BC
      * with older rPDO models. Auto-loading in models built with rPDO 3.0 or
@@ -675,7 +675,7 @@ class rPDO {
     }
 
     protected function _loadClass($class, $fqn, $included= false, $path= '', $transient= false) {
-        if (empty($path)) $path= VPDO_CORE_PATH;
+        if (empty($path)) $path= RPDO_CORE_PATH;
         if (!$included) {
             /* turn to filesystem path and enforce all lower-case paths and filenames */
             $fqcn= str_replace('.', '/', $fqn) . '.class.php';
@@ -1946,7 +1946,7 @@ class rPDO {
      * производные в заявленных упаковках.
      * @return Cache\rPDOCacheManager rPDOCacheManager для этого экземпляра rPDO.
      */
-    public function getCacheManager($class= 'rPDO\\Cache\\rPDOCacheManager', $options = array('path' => VPDO_CORE_PATH, 'ignorePkg' => true)) {
+    public function getCacheManager($class= 'rPDO\\Cache\\rPDOCacheManager', $options = array('path' => RPDO_CORE_PATH, 'ignorePkg' => true)) {
         if ($this->cacheManager === null || !is_object($this->cacheManager) || !($this->cacheManager instanceof $class)) {
             if ($this->cacheManager= new $class($this, $options)) {
                 $this->_cacheEnabled= true;

@@ -1,5 +1,5 @@
 This file shows the changes in this release of rPDO.
 
-rPDO 1.0.0 (03 Ноября 2023)
+rPDO 1.0.1 (03 Ноября 2023)
 ====================================
 - Переход из ветки vPDO в rPDO
