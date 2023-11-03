@@ -28,7 +28,7 @@ abstract class rPDOManager {
      * @var rPDO A reference to the rPDO instance using this manager.
      * @access public
      */
-    public $vpdo= null;
+    public $rpdo= null;
     /**
      * @var rPDOGenerator The generator class for forward and reverse
      * engineering tasks (loaded only on demand).
@@ -42,11 +42,11 @@ abstract class rPDOManager {
     /**
      * Get a rPDOManager instance.
      *
-     * @param rPDO &$vpdo A reference to a specific rPDO instance.
+     * @param rPDO &$rpdo A reference to a specific rPDO instance.
      */
-    public function __construct(& $vpdo) {
-        if ($vpdo !== null && $vpdo instanceof rPDO) {
-            $this->vpdo= & $vpdo;
+    public function __construct(& $rpdo) {
+        if ($rpdo !== null && $rpdo instanceof rPDO) {
+            $this->rpdo= & $rpdo;
         }
     }
 
@@ -175,10 +175,10 @@ abstract class rPDOManager {
      */
     public function getGenerator() {
         if ($this->generator === null || !$this->generator instanceof rPDOGenerator) {
-            $generatorClass = '\\rPDO\\Om\\'  . $this->vpdo->config['dbtype'] . '\\rPDOGenerator';
+            $generatorClass = '\\rPDO\\Om\\'  . $this->rpdo->config['dbtype'] . '\\rPDOGenerator';
             $this->generator= new $generatorClass ($this);
             if ($this->generator === null || !$this->generator instanceof rPDOGenerator) {
-                $this->vpdo->log(rPDO::LOG_LEVEL_ERROR, "Could not load rPDOGenerator [{$generatorClass}] class.");
+                $this->rpdo->log(rPDO::LOG_LEVEL_ERROR, "Could not load rPDOGenerator [{$generatorClass}] class.");
             }
         }
         return $this->generator;
@@ -191,10 +191,10 @@ abstract class rPDOManager {
      */
     public function getTransport() {
         // if ($this->transport === null || !$this->transport instanceof rPDOTransport) {
-        //     $transportClass= $this->vpdo->getOption('rPDOTransport.class', null, 'rPDOTransport');
+        //     $transportClass= $this->rpdo->getOption('rPDOTransport.class', null, 'rPDOTransport');
         //     $this->transport= new $transportClass($this);
         //     if ($this->transport === null || !$this->transport instanceof rPDOTransport) {
-        //         $this->vpdo->log(rPDO::LOG_LEVEL_ERROR, "Could not load rPDOTransport [{$transportClass}] class.");
+        //         $this->rpdo->log(rPDO::LOG_LEVEL_ERROR, "Could not load rPDOTransport [{$transportClass}] class.");
         //     }
         // }
         return $this->transport;

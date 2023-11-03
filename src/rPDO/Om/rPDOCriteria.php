@@ -18,7 +18,7 @@ use rPDO\rPDO;
  * @package rPDO\Om
  */
 class rPDOCriteria {
-    public $vpdo= null;
+    public $rpdo= null;
     public $sql= '';
     public $stmt= null;
     public $bindings= array ();
@@ -43,13 +43,13 @@ class rPDOCriteria {
      * criteria is to be cached (true|false) or optionally a TTL in seconds.
      * @return xrPDOCriteria
      */
-    public function __construct(& $vpdo, $sql= '', $bindings= array (), $cacheFlag= false) {
-        $this->vpdo= & $vpdo;
+    public function __construct(& $rpdo, $sql= '', $bindings= array (), $cacheFlag= false) {
+        $this->rpdo= & $rpdo;
         $this->cacheFlag= $cacheFlag;
         if (is_string($sql) && !empty ($sql)) {
             $this->sql= $sql;
             if ($cacheFlag === false || $cacheFlag < 0) {
-                $this->stmt= $vpdo->prepare($sql);
+                $this->stmt= $rpdo->prepare($sql);
             }
             if (!empty ($bindings)) {
                 $this->bind($bindings, true, $cacheFlag);
@@ -142,7 +142,7 @@ class rPDOCriteria {
      */
     public function prepare($bindings= array (), $byValue= true, $cacheFlag= null) {
         if ($this->stmt === null || !is_object($this->stmt)) {
-            if (!empty ($this->sql) && $stmt= $this->vpdo->prepare($this->sql)) {
+            if (!empty ($this->sql) && $stmt= $this->rpdo->prepare($this->sql)) {
                 $this->stmt= & $stmt;
                 $this->bind($bindings, $byValue, $cacheFlag);
             }
@@ -160,7 +160,7 @@ class rPDOCriteria {
     public function toSQL($parseBindings = true) {
         $sql = $this->sql;
         if ($parseBindings && !empty($this->bindings)) {
-            $sql = $this->vpdo->parseBindings($sql, $this->bindings);
+            $sql = $this->rpdo->parseBindings($sql, $this->bindings);
         }
         return $sql;
     }

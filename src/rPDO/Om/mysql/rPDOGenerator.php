@@ -71,33 +71,33 @@ class rPDOGenerator extends \rPDO\Om\rPDOGenerator {
     public function writeSchema(string $schemaFile, string $package = '', string $baseClass = '', string $tablePrefix = '', bool $restrictPrefix = false): bool
     {
         if (empty($package)) {
-            $package = $this->manager->vpdo->package;
+            $package = $this->manager->rpdo->package;
         }
         if (empty($baseClass)) {
             $baseClass = 'rPDO\Om\rPDOObject';
         }
         if (empty($tablePrefix)) {
-            $tablePrefix = $this->manager->vpdo->config[rPDO::OPT_TABLE_PREFIX];
+            $tablePrefix = $this->manager->rpdo->config[rPDO::OPT_TABLE_PREFIX];
         }
         $schemaVersion = rPDO::SCHEMA_VERSION;
         $xmlContent = array();
         $xmlContent[] = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
         $xmlContent[] = "<model package=\"{$package}\" baseClass=\"{$baseClass}\" platform=\"mysql\" defaultEngine=\"InnoDB\" version=\"{$schemaVersion}\">";
         //read list of tables
-        $dbname= $this->manager->vpdo->escape($this->manager->vpdo->config['dbname']);
+        $dbname= $this->manager->rpdo->escape($this->manager->rpdo->config['dbname']);
         $tableLike= ($tablePrefix && $restrictPrefix) ? " LIKE '{$tablePrefix}%'" : '';
-        $tablesStmt= $this->manager->vpdo->prepare("SHOW TABLES FROM {$dbname}{$tableLike}");
+        $tablesStmt= $this->manager->rpdo->prepare("SHOW TABLES FROM {$dbname}{$tableLike}");
         if (!$tablesStmt) {
-            $this->manager->vpdo->log(rPDO::LOG_LEVEL_ERROR, 'Could not query tables from database ' . $dbname);
+            $this->manager->rpdo->log(rPDO::LOG_LEVEL_ERROR, 'Could not query tables from database ' . $dbname);
             return false;
         }
 
         $tstart = microtime(true);
         $tablesStmt->execute();
-        $this->manager->vpdo->queryTime += microtime(true) - $tstart;
-        $this->manager->vpdo->executedQueries++;
+        $this->manager->rpdo->queryTime += microtime(true) - $tstart;
+        $this->manager->rpdo->executedQueries++;
         $tables= $tablesStmt->fetchAll(PDO::FETCH_NUM);
-        if ($this->manager->vpdo->getDebug() === true) $this->manager->vpdo->log(rPDO::LOG_LEVEL_DEBUG, print_r($tables, true));
+        if ($this->manager->rpdo->getDebug() === true) $this->manager->rpdo->log(rPDO::LOG_LEVEL_DEBUG, print_r($tables, true));
         foreach ($tables as $table) {
             $xmlObject= array();
             $xmlFields= array();
@@ -107,10 +107,10 @@ class rPDOGenerator extends \rPDO\Om\rPDOGenerator {
             }
             $class= $this->getClassName($tableName);
             $extends= $baseClass;
-            $fieldsStmt= $this->manager->vpdo->query('SHOW COLUMNS FROM ' . $this->manager->vpdo->escape($table[0]));
+            $fieldsStmt= $this->manager->rpdo->query('SHOW COLUMNS FROM ' . $this->manager->rpdo->escape($table[0]));
             if ($fieldsStmt) {
                 $fields= $fieldsStmt->fetchAll(PDO::FETCH_ASSOC);
-                if ($this->manager->vpdo->getDebug() === true) $this->manager->vpdo->log(rPDO::LOG_LEVEL_DEBUG, print_r($fields, true));
+                if ($this->manager->rpdo->getDebug() === true) $this->manager->rpdo->log(rPDO::LOG_LEVEL_DEBUG, print_r($fields, true));
                 if (!empty($fields)) {
                     foreach ($fields as $field) {
                         $Field= '';
@@ -132,7 +132,7 @@ class rPDOGenerator extends \rPDO\Om\rPDOGenerator {
                         if (isset ($Type[1]) && !empty ($Type[1])) {
                             $attributes= ' attributes="' . trim($Type[1]) . '"';
                         }
-                        $PhpType= $this->manager->vpdo->driver->getPhpType($dbType);
+                        $PhpType= $this->manager->rpdo->driver->getPhpType($dbType);
                         $Null= ' null="' . (($Null === 'NO') ? 'false' : 'true') . '"';
                         $Key= $this->getIndex($Key);
                         $Default= $this->getDefault($Default);
@@ -152,16 +152,16 @@ class rPDOGenerator extends \rPDO\Om\rPDOGenerator {
                         $xmlFields[] = "\t\t<field key=\"{$Field}\" dbtype=\"{$dbType}\"{$Precision}{$attributes} phptype=\"{$PhpType}\"{$Null}{$Default}{$Key}{$Extra} />";
                     }
                 } else {
-                    $this->manager->vpdo->log(rPDO::LOG_LEVEL_ERROR, 'No columns were found in table ' .  $table[0]);
+                    $this->manager->rpdo->log(rPDO::LOG_LEVEL_ERROR, 'No columns were found in table ' .  $table[0]);
                 }
             } else {
-                $this->manager->vpdo->log(rPDO::LOG_LEVEL_ERROR, 'Error retrieving columns for table ' .  $table[0]);
+                $this->manager->rpdo->log(rPDO::LOG_LEVEL_ERROR, 'Error retrieving columns for table ' .  $table[0]);
             }
             $whereClause= ($extends === 'rPDO\Om\rPDOSimpleObject' ? " WHERE `Key_name` != 'PRIMARY'" : '');
-            $indexesStmt= $this->manager->vpdo->query('SHOW INDEXES FROM ' . $this->manager->vpdo->escape($table[0]) . $whereClause);
+            $indexesStmt= $this->manager->rpdo->query('SHOW INDEXES FROM ' . $this->manager->rpdo->escape($table[0]) . $whereClause);
             if ($indexesStmt) {
                 $indexes= $indexesStmt->fetchAll(PDO::FETCH_ASSOC);
-                if ($this->manager->vpdo->getDebug() === true) $this->manager->vpdo->log(rPDO::LOG_LEVEL_DEBUG, "Indices for table {$table[0]}: " . print_r($indexes, true));
+                if ($this->manager->rpdo->getDebug() === true) $this->manager->rpdo->log(rPDO::LOG_LEVEL_DEBUG, "Indices for table {$table[0]}: " . print_r($indexes, true));
                 if (!empty($indexes)) {
                     $indices = array();
                     foreach ($indexes as $index) {
@@ -170,7 +170,7 @@ class rPDOGenerator extends \rPDO\Om\rPDOGenerator {
                     }
                     foreach ($indices as $index) {
                         $xmlIndexCols = array();
-                        if ($this->manager->vpdo->getDebug() === true) $this->manager->vpdo->log(rPDO::LOG_LEVEL_DEBUG, "Details of index: " . print_r($index, true));
+                        if ($this->manager->rpdo->getDebug() === true) $this->manager->rpdo->log(rPDO::LOG_LEVEL_DEBUG, "Details of index: " . print_r($index, true));
                         foreach ($index as $columnSeq => $column) {
                             if ($columnSeq == 1) {
                                 $keyName = $column['Key_name'];
@@ -187,10 +187,10 @@ class rPDOGenerator extends \rPDO\Om\rPDOGenerator {
                         $xmlIndices[]= "\t\t</index>";
                     }
                 } else {
-                    $this->manager->vpdo->log(rPDO::LOG_LEVEL_WARN, 'No indexes were found in table ' .  $table[0]);
+                    $this->manager->rpdo->log(rPDO::LOG_LEVEL_WARN, 'No indexes were found in table ' .  $table[0]);
                 }
             } else {
-                $this->manager->vpdo->log(rPDO::LOG_LEVEL_ERROR, 'Error getting indexes for table ' .  $table[0]);
+                $this->manager->rpdo->log(rPDO::LOG_LEVEL_ERROR, 'Error getting indexes for table ' .  $table[0]);
             }
             $xmlObject[] = "\t<object class=\"{$class}\" table=\"{$tableName}\" extends=\"{$extends}\">";
             $xmlObject[] = implode("\n", $xmlFields);
@@ -202,8 +202,8 @@ class rPDOGenerator extends \rPDO\Om\rPDOGenerator {
             $xmlContent[] = implode("\n", $xmlObject);
         }
         $xmlContent[] = "</model>";
-        if ($this->manager->vpdo->getDebug() === true) {
-           $this->manager->vpdo->log(rPDO::LOG_LEVEL_DEBUG, implode("\n", $xmlContent));
+        if ($this->manager->rpdo->getDebug() === true) {
+           $this->manager->rpdo->log(rPDO::LOG_LEVEL_DEBUG, implode("\n", $xmlContent));
         }
         $file= fopen($schemaFile, 'wb');
         $written= fwrite($file, implode("\n", $xmlContent));

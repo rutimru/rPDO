@@ -49,10 +49,10 @@ class rPDODriver extends \rPDO\Om\rPDODriver {
     /**
      * Получите экземпляр mysql rPDODriver.
      *
-     * @param rPDO &$vpdo Ссылка на конкретный экземпляр rPDO.
+     * @param rPDO &$rpdo Ссылка на конкретный экземпляр rPDO.
      */
-    function __construct(rPDO &$vpdo) {
-        parent :: __construct($vpdo);
+    function __construct(rPDO &$rpdo) {
+        parent :: __construct($rpdo);
         $this->dbtypes['integer']= array('/INT/i');
         $this->dbtypes['boolean']= array('/^BOOL/i');
         $this->dbtypes['float']= array('/^DEC/i','/^NUMERIC$/i','/^FLOAT$/i','/^DOUBLE/i','/^REAL/i');

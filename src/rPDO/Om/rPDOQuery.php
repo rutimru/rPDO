@@ -113,18 +113,18 @@ abstract class rPDOQuery extends rPDOCriteria {
     /**
      * Construct a new rPDOQuery instance.
      *
-     * @param rPDO &$vpdo
+     * @param rPDO &$rpdo
      * @param string $class
      * @param mixed|rPDOCriteria $criteria
      */
-    public function __construct(& $vpdo, $class, $criteria= null) {
-        parent :: __construct($vpdo);
-        if ($class= $this->vpdo->loadClass($class)) {
+    public function __construct(& $rpdo, $class, $criteria= null) {
+        parent :: __construct($rpdo);
+        if ($class= $this->rpdo->loadClass($class)) {
             $this->_class= $class;
-            $this->_alias= $this->vpdo->getAlias($this->_class);
-            $this->_tableClass = $this->vpdo->getTableClass($this->_class);
+            $this->_alias= $this->rpdo->getAlias($this->_class);
+            $this->_tableClass = $this->rpdo->getTableClass($this->_class);
             $this->query['from']['tables'][0]= array (
-                'table' => $this->vpdo->getTableName($this->_class),
+                'table' => $this->rpdo->getTableName($this->_class),
                 'alias' => & $this->_alias
             );
             if ($criteria !== null) {
@@ -177,7 +177,7 @@ abstract class rPDOQuery extends rPDOCriteria {
         $command= strtoupper(trim($command));
         if (preg_match('/(SELECT|UPDATE|DELETE)/', $command)) {
             $this->query['command']= $command;
-            if (in_array($command, array('DELETE','UPDATE'))) $this->_alias= $this->vpdo->getTableName($this->_class);
+            if (in_array($command, array('DELETE','UPDATE'))) $this->_alias= $this->rpdo->getTableName($this->_class);
         }
         return $this;
     }
@@ -223,8 +223,8 @@ abstract class rPDOQuery extends rPDOCriteria {
     public function select($columns= '*') {
         if (!is_array($columns)) {
             $columns= trim($columns);
-            if ($columns == '*' || $columns === $this->_alias . '.*' || $columns === $this->vpdo->escape($this->_alias) . '.*') {
-                $columns= $this->vpdo->getSelectColumns($this->_class, $this->_alias, $this->_alias . '_');
+            if ($columns == '*' || $columns === $this->_alias . '.*' || $columns === $this->rpdo->escape($this->_alias) . '.*') {
+                $columns= $this->rpdo->getSelectColumns($this->_class, $this->_alias, $this->_alias . '_');
             }
             $columns= explode(',', $columns);
             foreach ($columns as $colKey => $column) $columns[$colKey] = trim($column);
@@ -246,8 +246,8 @@ abstract class rPDOQuery extends rPDOCriteria {
      * @return rPDOQuery Returns a reference to the current instance for convenience.
      */
     public function set(array $values) {
-        $fieldMeta= $this->vpdo->getFieldMeta($this->_class);
-        $fieldAliases= $this->vpdo->getFieldAliases($this->_class);
+        $fieldMeta= $this->rpdo->getFieldMeta($this->_class);
+        $fieldAliases= $this->rpdo->getFieldAliases($this->_class);
         foreach ($values as $key => $value) {
             $type= null;
             if (!array_key_exists($key, $fieldMeta)) {
@@ -292,24 +292,24 @@ abstract class rPDOQuery extends rPDOCriteria {
      * @return rPDOQuery Returns the current object for convenience.
      */
     public function join($class, $alias= '', $type= rPDOQuery::SQL_JOIN_CROSS, $conditions= array (), $conjunction= rPDOQuery::SQL_AND, $binding= null, $condGroup= 0) {
-        if ($this->vpdo->loadClass($class)) {
+        if ($this->rpdo->loadClass($class)) {
             $alias= $alias ? $alias : $class;
             $target= & $this->query['from']['joins'];
             $targetIdx= count($target);
             $target[$targetIdx]= array (
-                'table' => $this->vpdo->getTableName($class),
+                'table' => $this->rpdo->getTableName($class),
                 'class' => $class,
                 'alias' => $alias,
                 'type' => $type,
                 'conditions' => array ()
             );
             if (empty ($conditions)) {
-                $fkMeta= $this->vpdo->getFKDefinition($this->_class, $alias);
+                $fkMeta= $this->rpdo->getFKDefinition($this->_class, $alias);
                 if ($fkMeta) {
                     $parentAlias= isset ($this->_alias) ? $this->_alias : $this->_class;
                     $local= $fkMeta['local'];
                     $foreign= $fkMeta['foreign'];
-                    $conditions= $this->vpdo->escape($parentAlias) . '.' . $this->vpdo->escape($local) . ' =  ' . $this->vpdo->escape($alias) . '.' . $this->vpdo->escape($foreign);
+                    $conditions= $this->rpdo->escape($parentAlias) . '.' . $this->rpdo->escape($local) . ' =  ' . $this->rpdo->escape($alias) . '.' . $this->rpdo->escape($foreign);
                     if (isset($fkMeta['criteria']['local'])) {
                         $localCriteria = array();
                         if (is_array($fkMeta['criteria']['local'])) {
@@ -365,10 +365,10 @@ abstract class rPDOQuery extends rPDOCriteria {
      * @return rPDOQuery Returns the instance.
      */
     public function from($class, $alias= '') {
-        if ($class= $this->vpdo->loadClass($class)) {
+        if ($class= $this->rpdo->loadClass($class)) {
             $alias= $alias ? $alias : $class;
             $this->query['from']['tables'][]= array (
-                'table' => $this->vpdo->getTableName($class),
+                'table' => $this->rpdo->getTableName($class),
                 'alias' => $alias
             );
         }
@@ -391,7 +391,7 @@ abstract class rPDOQuery extends rPDOCriteria {
         try {
             $target[$condGroup][] = $this->parseConditions($conditions, $conjunction);
         } catch (rPDOException $e) {
-            $this->vpdo->log(rPDO::LOG_LEVEL_ERROR, $e->getMessage());
+            $this->rpdo->log(rPDO::LOG_LEVEL_ERROR, $e->getMessage());
             $this->where("2=1");
         }
         return $this;
@@ -434,7 +434,7 @@ abstract class rPDOQuery extends rPDOCriteria {
         }
 
         if (!static::isValidClause($column)) {
-            $this->vpdo->log(rPDO::LOG_LEVEL_ERROR, 'SQL injection attempt detected in sortby column; clause rejected');
+            $this->rpdo->log(rPDO::LOG_LEVEL_ERROR, 'SQL injection attempt detected in sortby column; clause rejected');
         } elseif (!empty($column)) {
             $this->query['sortby'][] = array('column' => $column, 'direction' => $direction);
         }
@@ -457,7 +457,7 @@ abstract class rPDOQuery extends rPDOCriteria {
         try {
             $this->query['having'][] = $this->parseConditions((array)$conditions);
         } catch (rPDOException $e) {
-            $this->vpdo->log(rPDO::LOG_LEVEL_ERROR, $e->getMessage());
+            $this->rpdo->log(rPDO::LOG_LEVEL_ERROR, $e->getMessage());
             $this->where("2=1");
         }
         return $this;
@@ -484,22 +484,22 @@ abstract class rPDOQuery extends rPDOCriteria {
      */
     public function bindGraph($graph) {
         if (is_string($graph)) {
-            $graph= $this->vpdo->fromJSON($graph);
+            $graph= $this->rpdo->fromJSON($graph);
         }
         if (is_array ($graph)) {
             if ($this->graph !== $graph) {
                 $this->graph= $graph;
-                $this->select($this->vpdo->getSelectColumns($this->_class, $this->_alias, $this->_alias . '_'));
+                $this->select($this->rpdo->getSelectColumns($this->_class, $this->_alias, $this->_alias . '_'));
                 foreach ($this->graph as $relationAlias => $subRelations) {
                     $this->bindGraphNode($this->_class, $this->_alias, $relationAlias, $subRelations);
                 }
-                if ($pk= $this->vpdo->getPK($this->_class)) {
+                if ($pk= $this->rpdo->getPK($this->_class)) {
                     if (is_array ($pk)) {
                         foreach ($pk as $key) {
-                            $this->sortby($this->vpdo->escape($this->_alias) . '.' . $this->vpdo->escape($key), 'ASC');
+                            $this->sortby($this->rpdo->escape($this->_alias) . '.' . $this->rpdo->escape($key), 'ASC');
                         }
                     } else {
-                        $this->sortby($this->vpdo->escape($this->_alias) . '.' . $this->vpdo->escape($pk), 'ASC');
+                        $this->sortby($this->rpdo->escape($this->_alias) . '.' . $this->rpdo->escape($pk), 'ASC');
                     }
                 }
             }
@@ -516,12 +516,12 @@ abstract class rPDOQuery extends rPDOCriteria {
      * @param array $relations Child relations of the current graph node.
      */
     public function bindGraphNode($parentClass, $parentAlias, $classAlias, $relations) {
-        if ($fkMeta= $this->vpdo->getFKDefinition($parentClass, $classAlias)) {
+        if ($fkMeta= $this->rpdo->getFKDefinition($parentClass, $classAlias)) {
             $class= $fkMeta['class'];
             $local= $fkMeta['local'];
             $foreign= $fkMeta['foreign'];
-            $this->select($this->vpdo->getSelectColumns($class, $classAlias, $classAlias . '_'));
-            $expression= $this->vpdo->escape($parentAlias) . '.' . $this->vpdo->escape($local) . ' = ' .  $this->vpdo->escape($classAlias) . '.' . $this->vpdo->escape($foreign);
+            $this->select($this->rpdo->getSelectColumns($class, $classAlias, $classAlias . '_'));
+            $expression= $this->rpdo->escape($parentAlias) . '.' . $this->rpdo->escape($local) . ' = ' .  $this->rpdo->escape($classAlias) . '.' . $this->rpdo->escape($foreign);
             if (isset($fkMeta['criteria']['local'])) {
                 $localCriteria = array();
                 if (is_array($fkMeta['criteria']['local'])) {
@@ -571,19 +571,19 @@ abstract class rPDOQuery extends rPDOCriteria {
      */
     public function hydrateGraph($rows, $cacheFlag = true) {
         $instances= array ();
-        $collectionCaching = $this->vpdo->getOption(rPDO::OPT_CACHE_DB_COLLECTIONS, array(), 1);
+        $collectionCaching = $this->rpdo->getOption(rPDO::OPT_CACHE_DB_COLLECTIONS, array(), 1);
         if (is_object($rows)) {
-            if ($cacheFlag && $this->vpdo->_cacheEnabled && $collectionCaching > 0) {
+            if ($cacheFlag && $this->rpdo->_cacheEnabled && $collectionCaching > 0) {
                 $cacheRows = array();
             }
             while ($row = $rows->fetch(\PDO::FETCH_ASSOC)) {
                 $this->hydrateGraphParent($instances, $row);
-                if ($cacheFlag && $this->vpdo->_cacheEnabled && $collectionCaching > 0) {
+                if ($cacheFlag && $this->rpdo->_cacheEnabled && $collectionCaching > 0) {
                     $cacheRows[]= $row;
                 }
             }
-            if ($cacheFlag && $this->vpdo->_cacheEnabled && $collectionCaching > 0) {
-                $this->vpdo->toCache($this, $cacheRows, $cacheFlag);
+            if ($cacheFlag && $this->rpdo->_cacheEnabled && $collectionCaching > 0) {
+                $this->rpdo->toCache($this, $cacheRows, $cacheFlag);
             }
         } elseif (is_array($rows)) {
             foreach ($rows as $row) {
@@ -595,7 +595,7 @@ abstract class rPDOQuery extends rPDOCriteria {
 
     public function hydrateGraphParent(& $instances, $row) {
         $hydrated = false;
-        $instance = $this->vpdo->call($this->getClass(), '_loadInstance', array(& $this->vpdo, $this->getClass(), $this->getAlias(), $row));
+        $instance = $this->rpdo->call($this->getClass(), '_loadInstance', array(& $this->rpdo, $this->getClass(), $this->getAlias(), $row));
         if (is_object($instance)) {
             $pk= $instance->getPrimaryKey();
             if (is_array($pk)) $pk= implode('-', $pk);
@@ -623,7 +623,7 @@ abstract class rPDOQuery extends rPDOCriteria {
         $relObj= null;
         if ($relationMeta= $instance->getFKDefinition($alias)) {
             if ($row[$alias.'_'.$relationMeta['foreign']] != null) {
-                $relObj = $this->vpdo->call($relationMeta['class'], '_loadInstance', array(& $this->vpdo, $relationMeta['class'], $alias, $row));
+                $relObj = $this->rpdo->call($relationMeta['class'], '_loadInstance', array(& $this->rpdo, $relationMeta['class'], $alias, $row));
                 if ($relObj) {
                     if (strtolower($relationMeta['cardinality']) == 'many') {
                         $instance->addMany($relObj, $alias);
@@ -664,10 +664,10 @@ abstract class rPDOQuery extends rPDOCriteria {
      */
     public function prepare($bindings= array (), $byValue= true, $cacheFlag= null) {
         $this->stmt= null;
-        if ($this->construct() && $this->stmt= $this->vpdo->prepare($this->sql)) {
+        if ($this->construct() && $this->stmt= $this->rpdo->prepare($this->sql)) {
             $this->bind($bindings, $byValue, $cacheFlag);
         } else {
-            $this->vpdo->log(rPDO::LOG_LEVEL_ERROR, 'Could not construct or prepare query because it is invalid or could not connect: ' . $this->sql);
+            $this->rpdo->log(rPDO::LOG_LEVEL_ERROR, 'Could not construct or prepare query because it is invalid or could not connect: ' . $this->sql);
         }
         return $this->stmt;
     }
@@ -683,13 +683,13 @@ abstract class rPDOQuery extends rPDOCriteria {
      */
     public function parseConditions($conditions, $conjunction = rPDOQuery::SQL_AND) {
         $result= array ();
-        $pk= $this->vpdo->getPK($this->_class);
-        $pktype= $this->vpdo->getPKType($this->_class);
-        $fieldMeta= $this->vpdo->getFieldMeta($this->_class, true);
-        $fieldAliases= $this->vpdo->getFieldAliases($this->_class);
+        $pk= $this->rpdo->getPK($this->_class);
+        $pktype= $this->rpdo->getPKType($this->_class);
+        $fieldMeta= $this->rpdo->getFieldMeta($this->_class, true);
+        $fieldAliases= $this->rpdo->getFieldAliases($this->_class);
         $command= strtoupper($this->query['command']);
-        $alias= $command == 'SELECT' ? $this->_alias : $this->vpdo->getTableName($this->_class, false);
-        $alias= trim($alias, $this->vpdo->_escapeCharOpen . $this->vpdo->_escapeCharClose);
+        $alias= $command == 'SELECT' ? $this->_alias : $this->rpdo->getTableName($this->_class, false);
+        $alias= trim($alias, $this->rpdo->_escapeCharOpen . $this->rpdo->_escapeCharClose);
         if (is_array($conditions)) {
             if (isset($conditions[0]) && is_scalar($conditions[0]) && !$this->isConditionalClause($conditions[0]) && is_array($pk) && count($conditions) == count($pk)) {
                 $iteration= 0;
@@ -699,7 +699,7 @@ abstract class rPDOQuery extends rPDOCriteria {
                     }
                     $isString= in_array($fieldMeta[$k]['phptype'], $this->_quotable);
                     $field= array();
-                    $field['sql']= $this->vpdo->escape($alias) . '.' . $this->vpdo->escape($k) . " = ?";
+                    $field['sql']= $this->rpdo->escape($alias) . '.' . $this->rpdo->escape($k) . " = ?";
                     $field['binding']= array (
                         'value' => $conditions[$iteration],
                         'type' => $isString ? \PDO::PARAM_STR : \PDO::PARAM_INT,
@@ -719,12 +719,12 @@ abstract class rPDOQuery extends rPDOCriteria {
                             $result[]= new rPDOQueryCondition(array('sql' => $val, 'binding' => null, 'conjunction' => $conjunction));
                             continue;
                         } else {
-                            $this->vpdo->log(rPDO::LOG_LEVEL_ERROR, "Error parsing condition with key {$key}: " . print_r($val, true));
+                            $this->rpdo->log(rPDO::LOG_LEVEL_ERROR, "Error parsing condition with key {$key}: " . print_r($val, true));
                             continue;
                         }
                     } elseif (is_scalar($val) || is_array($val) || $val === null) {
-                        $alias= $command == 'SELECT' ? $this->_alias : $this->vpdo->getTableName($this->_class, false);
-                        $alias= trim($alias, $this->vpdo->_escapeCharOpen . $this->vpdo->_escapeCharClose);
+                        $alias= $command == 'SELECT' ? $this->_alias : $this->rpdo->getTableName($this->_class, false);
+                        $alias= trim($alias, $this->rpdo->_escapeCharOpen . $this->rpdo->_escapeCharClose);
                         $operator= '=';
                         $conj = $conjunction;
                         $key_operator= explode(':', $key);
@@ -739,7 +739,7 @@ abstract class rPDOQuery extends rPDOCriteria {
                         }
                         if (strpos($key, '.') !== false) {
                             $key_parts= explode('.', $key);
-                            $alias= trim($key_parts[0], " {$this->vpdo->_escapeCharOpen}{$this->vpdo->_escapeCharClose}");
+                            $alias= trim($key_parts[0], " {$this->rpdo->_escapeCharOpen}{$this->rpdo->_escapeCharClose}");
                             $key= $key_parts[1];
                         }
                         if (!array_key_exists($key, $fieldMeta)) {
@@ -773,24 +773,24 @@ abstract class rPDOQuery extends rPDOCriteria {
                                                 $vals[] = (integer) $v;
                                                 break;
                                             case \PDO::PARAM_STR:
-                                                $vals[] = $this->vpdo->quote($v);
+                                                $vals[] = $this->rpdo->quote($v);
                                                 break;
                                             default:
-                                                $this->vpdo->log(rPDO::LOG_LEVEL_ERROR, "Error parsing {$operator} condition with key {$key}: " . print_r($v, true));
+                                                $this->rpdo->log(rPDO::LOG_LEVEL_ERROR, "Error parsing {$operator} condition with key {$key}: " . print_r($v, true));
                                                 break;
                                         }
                                     }
                                 }
                                 if (empty($vals)) {
-                                    $this->vpdo->log(rPDO::LOG_LEVEL_ERROR, "Encountered empty {$operator} condition with key {$key}");
+                                    $this->rpdo->log(rPDO::LOG_LEVEL_ERROR, "Encountered empty {$operator} condition with key {$key}");
                                 }
                                 $val = "(" . implode(',', $vals) . ")";
-                                $sql = "{$this->vpdo->escape($alias)}.{$this->vpdo->escape($key)} {$operator} {$val}";
+                                $sql = "{$this->rpdo->escape($alias)}.{$this->rpdo->escape($key)} {$operator} {$val}";
                                 $result[]= new rPDOQueryCondition(array('sql' => $sql, 'binding' => null, 'conjunction' => $conj));
                                 continue;
                             }
                             $field= array ();
-                            $field['sql']= $this->vpdo->escape($alias) . '.' . $this->vpdo->escape($key) . ' ' . $operator . ' ?';
+                            $field['sql']= $this->rpdo->escape($alias) . '.' . $this->rpdo->escape($key) . ' ' . $operator . ' ?';
                             $field['binding']= array (
                                 'value' => $val,
                                 'type' => $type,
@@ -818,7 +818,7 @@ abstract class rPDOQuery extends rPDOCriteria {
             } else {
                 $param_type= \PDO::PARAM_STR;
             }
-            $field['sql']= $this->vpdo->escape($alias) . '.' . $this->vpdo->escape($pk) . ' = ?';
+            $field['sql']= $this->rpdo->escape($alias) . '.' . $this->rpdo->escape($pk) . ' = ?';
             $field['binding']= array ('value' => $conditions, 'type' => $param_type, 'length' => 0);
             $field['conjunction']= $conjunction;
             $result = new rPDOQueryCondition($field);
@@ -901,8 +901,8 @@ abstract class rPDOQuery extends rPDOCriteria {
                 $this->bindings[]= $conditions->binding;
             }
         }
-        if ($this->vpdo->getDebug() === true) {
-            $this->vpdo->log(rPDO::LOG_LEVEL_DEBUG, "Returning clause:\n{$clause}\nfrom conditions:\n" . print_r($conditions, 1));
+        if ($this->rpdo->getDebug() === true) {
+            $this->rpdo->log(rPDO::LOG_LEVEL_DEBUG, "Returning clause:\n{$clause}\nfrom conditions:\n" . print_r($conditions, 1));
         }
         return $clause;
     }

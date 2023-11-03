@@ -16,8 +16,8 @@ namespace rPDO\Om\mysql;
  * @package rPDO\Om\mysql
  */
 class rPDOQuery extends \rPDO\Om\rPDOQuery {
-    public function __construct(& $vpdo, $class, $criteria= null) {
-        parent :: __construct($vpdo, $class, $criteria);
+    public function __construct(& $rpdo, $class, $criteria= null) {
+        parent :: __construct($rpdo, $class, $criteria);
         $this->query['priority']= '';
     }
 
@@ -36,12 +36,12 @@ class rPDOQuery extends \rPDO\Om\rPDOQuery {
                 $ignorealias = is_int($alias);
                 $escape = !preg_match('/\bAS\b/i', $column) && !preg_match('/\./', $column) && !preg_match('/\(/', $column);
                 if ($escape) {
-                    $column= $this->vpdo->escape(trim($column));
+                    $column= $this->rpdo->escape(trim($column));
                 } else {
                     $column= trim($column);
                 }
                 if (!$ignorealias) {
-                    $alias = $escape ? $this->vpdo->escape($alias) : $alias;
+                    $alias = $escape ? $this->rpdo->escape($alias) : $alias;
                     $columns[]= "{$column} AS {$alias}";
                 } else {
                     $columns[]= "{$column}";
@@ -58,13 +58,13 @@ class rPDOQuery extends \rPDO\Om\rPDOQuery {
             if ($command != 'SELECT') {
                 $tables[]= $table['table'];
             } else {
-                $tables[]= $table['table'] . ' AS ' . $this->vpdo->escape($table['alias']);
+                $tables[]= $table['table'] . ' AS ' . $this->rpdo->escape($table['alias']);
             }
         }
         $sql.= $this->query['from']['tables'] ? implode(', ', $tables) . ' ' : '';
         if (!empty ($this->query['from']['joins'])) {
             foreach ($this->query['from']['joins'] as $join) {
-                $sql.= $join['type'] . ' ' . $join['table'] . ' ' . $this->vpdo->escape($join['alias']) . ' ';
+                $sql.= $join['type'] . ' ' . $join['table'] . ' ' . $this->rpdo->escape($join['alias']) . ' ';
                 if (!empty ($join['conditions'])) {
                     $sql.= 'ON ';
                     $sql.= $this->buildConditionalClause($join['conditions']);
@@ -79,11 +79,11 @@ class rPDOQuery extends \rPDO\Om\rPDOQuery {
                     $value = $setVal['value'];
                     $type = $setVal['type'];
                     if ($value !== null && in_array($type, array(\PDO::PARAM_INT, \PDO::PARAM_STR))) {
-                        $value = $this->vpdo->quote($value, $type);
+                        $value = $this->rpdo->quote($value, $type);
                     } elseif ($value === null) {
                         $value = 'NULL';
                     }
-                    $clauses[] = $this->vpdo->escape($setKey) . ' = ' . $value;
+                    $clauses[] = $this->rpdo->escape($setKey) . ' = ' . $value;
                 }
                 if (!empty($clauses)) {
                     $sql.= 'SET ' . implode(', ', $clauses) . ' ';

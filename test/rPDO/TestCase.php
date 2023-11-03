@@ -26,7 +26,7 @@ abstract class TestCase extends XTestCase
     /**
      * @var rPDO An rPDO instance for this TestCase.
      */
-    public $vpdo = null;
+    public $rpdo = null;
 
     /**
      * Setup static properties when loading the test cases.
@@ -49,18 +49,18 @@ abstract class TestCase extends XTestCase
     public static function &getInstance($new = false)
     {
         if ($new || !is_object(self::$fixture)) {
-            $driver = self::$properties['vpdo_driver'];
-            $vpdo = rPDO::getInstance(null, self::$properties["{$driver}_array_options"]);
-            if (is_object($vpdo)) {
+            $driver = self::$properties['rpdo_driver'];
+            $rpdo = rPDO::getInstance(null, self::$properties["{$driver}_array_options"]);
+            if (is_object($rpdo)) {
                 $logLevel = array_key_exists('logLevel', self::$properties)
                     ? self::$properties['logLevel']
                     : rPDO::LOG_LEVEL_WARN;
                 $logTarget = array_key_exists('logTarget', self::$properties)
                     ? self::$properties['logTarget']
                     : (php_sapi_name() === 'cli' ? 'ECHO' : 'HTML');
-                $vpdo->setLogLevel($logLevel);
-                $vpdo->setLogTarget($logTarget);
-                self::$fixture = $vpdo;
+                $rpdo->setLogLevel($logLevel);
+                $rpdo->setLogTarget($logTarget);
+                self::$fixture = $rpdo;
             }
         }
         return self::$fixture;
@@ -73,8 +73,8 @@ abstract class TestCase extends XTestCase
      */
     public function setUpFixtures()
     {
-        $this->vpdo = self::getInstance(true);
-        $this->vpdo->setPackage('rPDO\\Test\\Sample', self::$properties['vpdo_test_path'] . 'model/');
+        $this->rpdo = self::getInstance(true);
+        $this->rpdo->setPackage('rPDO\\Test\\Sample', self::$properties['rpdo_test_path'] . 'model/');
     }
 
     /**
@@ -84,10 +84,10 @@ abstract class TestCase extends XTestCase
      */
     public function tearDownFixtures()
     {
-        if (is_object($this->vpdo->pdo)) {
-            $this->vpdo->pdo = null;
+        if (is_object($this->rpdo->pdo)) {
+            $this->rpdo->pdo = null;
         }
         
-        $this->vpdo = null;
+        $this->rpdo = null;
     }
 }

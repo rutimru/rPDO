@@ -52,7 +52,7 @@ class rPDOCacheManager {
         $objCacheClass= 'rPDO\\Cache\\rPDOFileCache';
         if (!isset($this->caches[$key]) || !is_object($this->caches[$key])) {
             if ($cacheClass = $this->getOption($key . '_' . rPDO::OPT_CACHE_HANDLER, $options, $this->getOption(rPDO::OPT_CACHE_HANDLER, $options))) {
-                $cacheClass = $this->rpdo->loadClass($cacheClass, VPDO_CORE_PATH, false, true);
+                $cacheClass = $this->rpdo->loadClass($cacheClass, RPDO_CORE_PATH, false, true);
                 if ($cacheClass) {
                     $objCacheClass= $cacheClass;
                 }

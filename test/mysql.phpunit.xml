@@ -16,40 +16,40 @@
     </php>
     <testsuites>
         <testsuite name="Complete">
-            <file>./vPDO/Test/SetUpTest.php</file>
-            <file>./vPDO/Test/vPDOTest.php</file>
-            <file>./vPDO/Test/vPDOIteratorTest.php</file>
-            <file>./vPDO/Test/Om/vPDOObjectTest.php</file>
-            <file>./vPDO/Test/Om/vPDOObjectSingleTableInheritanceTest.php</file>
-            <file>./vPDO/Test/Om/vPDOQueryTest.php</file>
-            <file>./vPDO/Test/Om/vPDOQueryHavingTest.php</file>
-            <file>./vPDO/Test/Om/vPDOQueryLimitTest.php</file>
-            <file>./vPDO/Test/Om/vPDOQuerySortByTest.php</file>
-            <file>./vPDO/Test/Cache/vPDOCacheManagerTest.php</file>
-            <file>./vPDO/Test/Cache/vPDOCacheDbTest.php</file>
-            <file>./vPDO/Test/Compression/vPDOZipTest.php</file>
-            <file>./vPDO/Test/Transport/vPDOTransportTest.php</file>
-            <file>./vPDO/Test/Transport/vPDOVehicleTest.php</file>
-            <file>./vPDO/Test/PSR4/vPDOTest.php</file>
-            <file>./vPDO/Test/TearDownTest.php</file>
+            <file>./rPDO/Test/SetUpTest.php</file>
+            <file>./rPDO/Test/rPDOTest.php</file>
+            <file>./rPDO/Test/rPDOIteratorTest.php</file>
+            <file>./rPDO/Test/Om/rPDOObjectTest.php</file>
+            <file>./rPDO/Test/Om/rPDOObjectSingleTableInheritanceTest.php</file>
+            <file>./rPDO/Test/Om/rPDOQueryTest.php</file>
+            <file>./rPDO/Test/Om/rPDOQueryHavingTest.php</file>
+            <file>./rPDO/Test/Om/rPDOQueryLimitTest.php</file>
+            <file>./rPDO/Test/Om/rPDOQuerySortByTest.php</file>
+            <file>./rPDO/Test/Cache/rPDOCacheManagerTest.php</file>
+            <file>./rPDO/Test/Cache/rPDOCacheDbTest.php</file>
+            <file>./rPDO/Test/Compression/rPDOZipTest.php</file>
+            <file>./rPDO/Test/Transport/rPDOTransportTest.php</file>
+            <file>./rPDO/Test/Transport/rPDOVehicleTest.php</file>
+            <file>./rPDO/Test/PSR4/rPDOTest.php</file>
+            <file>./rPDO/Test/TearDownTest.php</file>
         </testsuite>
         <testsuite name="Legacy">
-            <file>./vPDO/Legacy/SetUpTest.php</file>
-            <file>./vPDO/Legacy/vPDOTest.php</file>
-            <file>./vPDO/Legacy/Om/vPDOObjectTest.php</file>
-            <file>./vPDO/Legacy/Om/vPDOObjectSingleTableInheritanceTest.php</file>
-            <file>./vPDO/Legacy/Om/vPDOQueryTest.php</file>
-            <file>./vPDO/Legacy/Om/vPDOQueryHavingTest.php</file>
-            <file>./vPDO/Legacy/Om/vPDOQueryLimitTest.php</file>
-            <file>./vPDO/Legacy/Om/vPDOQuerySortByTest.php</file>
-            <file>./vPDO/Legacy/Cache/vPDOCacheDbTest.php</file>
-            <file>./vPDO/Legacy/TearDownTest.php</file>
+            <file>./rPDO/Legacy/SetUpTest.php</file>
+            <file>./rPDO/Legacy/rPDOTest.php</file>
+            <file>./rPDO/Legacy/Om/rPDOObjectTest.php</file>
+            <file>./rPDO/Legacy/Om/rPDOObjectSingleTableInheritanceTest.php</file>
+            <file>./rPDO/Legacy/Om/rPDOQueryTest.php</file>
+            <file>./rPDO/Legacy/Om/rPDOQueryHavingTest.php</file>
+            <file>./rPDO/Legacy/Om/rPDOQueryLimitTest.php</file>
+            <file>./rPDO/Legacy/Om/rPDOQuerySortByTest.php</file>
+            <file>./rPDO/Legacy/Cache/rPDOCacheDbTest.php</file>
+            <file>./rPDO/Legacy/TearDownTest.php</file>
         </testsuite>
     </testsuites>
 
     <filter>
         <whitelist>
-            <directory>../src/vPDO/</directory>
+            <directory>../src/rPDO/</directory>
         </whitelist>
     </filter>
 </phpunit>

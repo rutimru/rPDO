@@ -27,7 +27,7 @@ abstract class rPDODriver {
      * @var rPDO Ссылка на экземпляр rPDO, использующий этот менеджер.
      * @access public
      */
-    public $vpdo= null;
+    public $rpdo= null;
     /**
      * @var array Описывает физические типы баз данных.
      */
@@ -54,14 +54,14 @@ abstract class rPDODriver {
     /**
      * Получите экземпляр rPDODriver.
      *
-     * @param rPDO $vpdo Ссылка на конкретный экземпляр rPDO.
+     * @param rPDO $rpdo Ссылка на конкретный экземпляр rPDO.
      */
-    public function __construct(rPDO &$vpdo) {
-        if ($vpdo !== null && $vpdo instanceof rPDO) {
-            $this->vpdo= & $vpdo;
-            $this->vpdo->_quoteChar= $this->quoteChar;
-            $this->vpdo->_escapeCharOpen= $this->escapeOpenChar;
-            $this->vpdo->_escapeCharClose= $this->escapeCloseChar;
+    public function __construct(rPDO &$rpdo) {
+        if ($rpdo !== null && $rpdo instanceof rPDO) {
+            $this->rpdo= & $rpdo;
+            $this->rpdo->_quoteChar= $this->quoteChar;
+            $this->rpdo->_escapeCharOpen= $this->escapeOpenChar;
+            $this->rpdo->_escapeCharClose= $this->escapeCloseChar;
         }
     }
 
