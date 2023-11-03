@@ -1,0 +1,30 @@
+{
+    "name": "rutim/rpdo",
+    "description": "A PDO-based Object/Relational Bridge Library",
+    "type": "library",
+    "license": "GPL-2.0+",
+    "minimum-stability": "stable",
+    "prefer-stable": true,    
+    "authors": [
+        {
+            "name": "Vitaly Surkov",
+            "email": "surkov@rutim.ru"
+        }
+    ],    
+    "require": {
+        "php": ">=8.0.0",
+        "symfony/console": "^5.4",
+        "psr/container": "^1.1 || ^2.0.1"
+    },
+    "require-dev": {
+        "yoast/phpunit-polyfills": "^1.0"
+    },
+    "autoload": {
+        "psr-0": {
+            "rPDO": ["src/", "test/"]
+        }
+    },
+    "bin": [
+        "bin/rpdo"
+    ]
+}

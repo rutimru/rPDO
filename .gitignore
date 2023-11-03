@@ -1,0 +1,8 @@
+# ignore various IDE project files
+.idea/
+
+# ignore composer.lock
+composer.lock
+
+# ignore phpunit cache files
+.phpunit.result.cache
