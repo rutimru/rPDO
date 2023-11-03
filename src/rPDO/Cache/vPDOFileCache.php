@@ -23,8 +23,8 @@ use rPDO\rPDO;
  * @package rPDO\Cache
  */
 class rPDOFileCache extends rPDOCache {
-    public function __construct(& $vpdo, $options = array()) {
-        parent :: __construct($vpdo, $options);
+    public function __construct(& $rpdo, $options = array()) {
+        parent :: __construct($rpdo, $options);
         $this->initialized = true;
     }
 
@@ -62,14 +62,14 @@ class rPDOFileCache extends rPDOCache {
                     $content= serialize(array('expires' => $expirationTS, 'content' => $var));
                     break;
                 case rPDOCacheManager::CACHE_JSON:
-                    $content= $this->vpdo->toJSON(array('expires' => $expirationTS, 'content' => $var));
+                    $content= $this->rpdo->toJSON(array('expires' => $expirationTS, 'content' => $var));
                     break;
                 case rPDOCacheManager::CACHE_PHP:
                 default:
                     $content= '<?php ' . $expireContent . ' return ' . var_export($var, true) . ';';
                     break;
             }
-            $set= $this->vpdo->cacheManager->writeFile($fileName, $content);
+            $set= $this->rpdo->cacheManager->writeFile($fileName, $content);
         }
         return $set;
     }
@@ -89,7 +89,7 @@ class rPDOFileCache extends rPDOCache {
         if ($this->getOption(rPDO::OPT_CACHE_MULTIPLE_OBJECT_DELETE, $options, false)) {
             $cacheKey= $this->getCacheKey($key, array_merge($options, array('cache_ext' => '')));
             if (file_exists($cacheKey) && is_dir($cacheKey)) {
-                $results = $this->vpdo->cacheManager->deleteTree($cacheKey, array_merge(array('deleteTop' => false, 'skipDirs' => false, 'extensions' => array('.cache.php')), $options));
+                $results = $this->rpdo->cacheManager->deleteTree($cacheKey, array_merge(array('deleteTop' => false, 'skipDirs' => false, 'extensions' => array('.cache.php')), $options));
                 if ($results !== false) {
                     $deleted = true;
                 }
@@ -116,7 +116,7 @@ class rPDOFileCache extends rPDOCache {
                         case rPDOCacheManager::CACHE_JSON:
                             $payload = stream_get_contents($file);
                             if ($payload !== false) {
-                                $payload = $this->vpdo->fromJSON($payload);
+                                $payload = $this->rpdo->fromJSON($payload);
                                 if (is_array($payload) && isset($payload['expires']) && (empty($payload['expires']) || time() < $payload['expires'])) {
                                     if (array_key_exists('content', $payload)) {
                                         $value= $payload['content'];
@@ -151,7 +151,7 @@ class rPDOFileCache extends rPDOCache {
 
     public function flush($options= array()) {
         $cacheKey= $this->getCacheKey('', array_merge($options, array('cache_ext' => '')));
-        $results = $this->vpdo->cacheManager->deleteTree($cacheKey, array_merge(array('deleteTop' => false, 'skipDirs' => false, 'extensions' => array('.cache.php')), $options));
+        $results = $this->rpdo->cacheManager->deleteTree($cacheKey, array_merge(array('deleteTop' => false, 'skipDirs' => false, 'extensions' => array('.cache.php')), $options));
         return ($results !== false);
     }
 }

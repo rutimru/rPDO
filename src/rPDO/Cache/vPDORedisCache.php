@@ -40,10 +40,10 @@ class rPDORedisCache extends rPDOCache {
                 }   
             } else {
                 $this->redis = null;
-                $this->vpdo->log(rPDO::LOG_LEVEL_ERROR, "xPDORedisCache[{$this->key}]: Error creating redis provider for server(s): " . $this->getOption($this->key . '_redisd_server', $options, $this->getOption('redisd_server', $options, 'localhost:6379')));
+                $this->rpdo->log(rPDO::LOG_LEVEL_ERROR, "xPDORedisCache[{$this->key}]: Error creating redis provider for server(s): " . $this->getOption($this->key . '_redisd_server', $options, $this->getOption('redisd_server', $options, 'localhost:6379')));
             }
         } else {
-            $this->vpdo->log(rPDO::LOG_LEVEL_ERROR, "xPDORedisCache[{$this->key}]: Error creating redis provider; xPDORedisCache requires the PHP redis extension.");
+            $this->rpdo->log(rPDO::LOG_LEVEL_ERROR, "xPDORedisCache[{$this->key}]: Error creating redis provider; xPDORedisCache requires the PHP redis extension.");
         }
     }
 

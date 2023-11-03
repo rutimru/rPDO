@@ -21,12 +21,12 @@ class rPDOMap implements ArrayAccess
     /**
      * @var rPDO The xPDO instance that owns this map.
      */
-    private $vpdo;
+    private $rpdo;
 
-    public function __construct(rPDO &$vpdo)
+    public function __construct(rPDO &$rpdo)
     {
         $this->map = [];
-        $this->vpdo =& $vpdo;
+        $this->rpdo =& $rpdo;
     }
 
     #[\ReturnTypeWillChange]
@@ -59,7 +59,7 @@ class rPDOMap implements ArrayAccess
 
     private function _checkClass($class)
     {
-        $driverClass = $this->vpdo->getDriverClass($class);
+        $driverClass = $this->rpdo->getDriverClass($class);
         if ($driverClass !== false && isset($driverClass::$metaMap)) {
             $this->map[$class] = $driverClass::$metaMap;
         }

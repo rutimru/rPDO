@@ -27,7 +27,7 @@ use rPDO\Om\rPDOQuery;
  */
 class rPDOIterator implements Iterator
 {
-    private $vpdo = null;
+    private $rpdo = null;
     private $index = 0;
     private $current = null;
     /** @var null|PDOStatement */
@@ -47,11 +47,11 @@ class rPDOIterator implements Iterator
      * @return xPDOIterator An xPDOIterator instance.
      * @see xPDO::getIterator()
      */
-    public function __construct(rPDO &$vpdo, array $options = [])
+    public function __construct(rPDO &$rpdo, array $options = [])
     {
-        $this->vpdo =& $vpdo;
+        $this->rpdo =& $rpdo;
         if (isset($options['class'])) {
-            $this->class = $this->vpdo->loadClass($options['class']);
+            $this->class = $this->rpdo->loadClass($options['class']);
         }
         if (isset($options['alias'])) {
             $this->alias = $options['alias'];
@@ -65,10 +65,10 @@ class rPDOIterator implements Iterator
             $this->criteria = $options['criteria'];
         } elseif (!empty($this->class)) {
             $criteria = array_key_exists('criteria', $options) ? $options['criteria'] : null;
-            $this->criteria = $this->vpdo->getCriteria($this->class, $criteria, $this->cacheFlag);
+            $this->criteria = $this->rpdo->getCriteria($this->class, $criteria, $this->cacheFlag);
         }
         if (!empty($this->criteria)) {
-            $this->criteriaType = $this->vpdo->getCriteriaType($this->criteria);
+            $this->criteriaType = $this->rpdo->getCriteriaType($this->criteria);
             if ($this->criteriaType === 'xPDOQuery') {
                 $this->class = $this->criteria->getClass();
                 $this->alias = $this->criteria->getAlias();
@@ -87,12 +87,12 @@ class rPDOIterator implements Iterator
         $this->stmt = $this->criteria->prepare();
         $tstart = microtime(true);
         if ($this->stmt && $this->stmt->execute()) {
-            $this->vpdo->queryTime += microtime(true) - $tstart;
-            $this->vpdo->executedQueries++;
+            $this->rpdo->queryTime += microtime(true) - $tstart;
+            $this->rpdo->executedQueries++;
             $this->fetch();
         } elseif ($this->stmt) {
-            $this->vpdo->queryTime += microtime(true) - $tstart;
-            $this->vpdo->executedQueries++;
+            $this->rpdo->queryTime += microtime(true) - $tstart;
+            $this->rpdo->executedQueries++;
         }
     }
 
@@ -134,10 +134,10 @@ class rPDOIterator implements Iterator
     {
         $row = $this->stmt->fetch(PDO::FETCH_ASSOC);
         if (is_array($row) && !empty($row)) {
-            $instance = $this->vpdo->call(
+            $instance = $this->rpdo->call(
                 $this->class,
                 '_loadInstance',
-                [& $this->vpdo, $this->class, $this->alias, $row]
+                [& $this->rpdo, $this->class, $this->alias, $row]
             );
             if ($instance === null) {
                 $this->fetch();

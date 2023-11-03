@@ -27,7 +27,7 @@ class rPDOAPCCache extends rPDOCache {
         if (function_exists('apc_exists')) {
             $this->initialized = true;
         } else {
-            $this->vpdo->log(rPDO::LOG_LEVEL_ERROR, "rPDOAPCCache[{$this->key}]: Ошибка при создании поставщика кэша APC; для rPDOAPCCache требуется расширение APC для PHP версии 2.0.0 или более поздней.");
+            $this->rpdo->log(rPDO::LOG_LEVEL_ERROR, "rPDOAPCCache[{$this->key}]: Ошибка при создании поставщика кэша APC; для rPDOAPCCache требуется расширение APC для PHP версии 2.0.0 или более поздней.");
         }
     }
 

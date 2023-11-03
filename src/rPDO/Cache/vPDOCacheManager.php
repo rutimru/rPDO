@@ -25,13 +25,13 @@ class rPDOCacheManager {
     const LOG_DIR = 'logs/';
 
     /** @var rPDO */
-    protected $vpdo= null;
+    protected $rpdo= null;
     protected $caches= array();
     protected $options= array();
     protected $_umask= null;
 
-    public function __construct(& $vpdo, $options = array()) {
-        $this->vpdo= & $vpdo;
+    public function __construct(& $rpdo, $options = array()) {
+        $this->rpdo= & $rpdo;
         $this->options= $options;
         $this->_umask= umask();
     }
@@ -52,15 +52,15 @@ class rPDOCacheManager {
         $objCacheClass= 'rPDO\\Cache\\rPDOFileCache';
         if (!isset($this->caches[$key]) || !is_object($this->caches[$key])) {
             if ($cacheClass = $this->getOption($key . '_' . rPDO::OPT_CACHE_HANDLER, $options, $this->getOption(rPDO::OPT_CACHE_HANDLER, $options))) {
-                $cacheClass = $this->vpdo->loadClass($cacheClass, VPDO_CORE_PATH, false, true);
+                $cacheClass = $this->rpdo->loadClass($cacheClass, VPDO_CORE_PATH, false, true);
                 if ($cacheClass) {
                     $objCacheClass= $cacheClass;
                 }
             }
             $options[rPDO::OPT_CACHE_KEY]= $key;
-            $this->caches[$key] = new $objCacheClass($this->vpdo, $options);
+            $this->caches[$key] = new $objCacheClass($this->rpdo, $options);
             if (empty($this->caches[$key]) || !$this->caches[$key]->isInitialized()) {
-                $this->caches[$key] = new rPDOFileCache($this->vpdo, $options);
+                $this->caches[$key] = new rPDOFileCache($this->rpdo, $options);
             }
             $objCache = $this->caches[$key];
             $objCacheClass= get_class($objCache);
@@ -68,12 +68,12 @@ class rPDOCacheManager {
             $objCache =& $this->caches[$key];
             $objCacheClass= get_class($objCache);
         }
-        if ($this->vpdo->getDebug() === true) $this->vpdo->log(rPDO::LOG_LEVEL_DEBUG, "Возвращающий {$objCacheClass}:{$key} поставщик кэша из доступных поставщиков: " . print_r(array_keys($this->caches), 1));
+        if ($this->rpdo->getDebug() === true) $this->rpdo->log(rPDO::LOG_LEVEL_DEBUG, "Возвращающий {$objCacheClass}:{$key} поставщик кэша из доступных поставщиков: " . print_r(array_keys($this->caches), 1));
         return $objCache;
     }
 
     /**
-     * Получите опцию из предоставленных опций, параметров CacheManager или самого vpdo.
+     * Получите опцию из предоставленных опций, параметров CacheManager или самого rpdo.
      *
      * @param string $key Уникальный идентификатор для опции.
      * @param array $options Набор явных параметров для переопределения параметров из rPDO 
@@ -98,7 +98,7 @@ class rPDOCacheManager {
             } elseif (is_array($this->options) && !empty($this->options) && array_key_exists($key, $this->options)) {
                 $option = $this->options[$key];
             } else {
-                $option = $this->vpdo->getOption($key, null, $default);
+                $option = $this->rpdo->getOption($key, null, $default);
             }
         }
         return $option;
@@ -134,7 +134,7 @@ class rPDOCacheManager {
      */
     public function getCachePath() {
         $cachePath= false;
-        if (!isset ($this->vpdo->config['cache_path'])) {
+        if (!isset ($this->rpdo->config['cache_path'])) {
             while (true) {
                 if (!empty ($_ENV['TMP'])) {
                     if ($cachePath= strtr($_ENV['TMP'], '\\', '/'))
@@ -160,7 +160,7 @@ class rPDOCacheManager {
             }
         }
         else {
-            $cachePath= strtr($this->vpdo->config['cache_path'], '\\', '/');
+            $cachePath= strtr($this->rpdo->config['cache_path'], '\\', '/');
         }
         if ($cachePath) {
             $perms = $this->getOption('new_folder_permissions', null, $this->getFolderPermissions());
@@ -272,9 +272,9 @@ class rPDOCacheManager {
                 }
             }
         } else {
-            $this->vpdo->log(rPDO::LOG_LEVEL_ERROR, "The lock_dir at {$lockDir} is not writable and could not be created");
+            $this->rpdo->log(rPDO::LOG_LEVEL_ERROR, "The lock_dir at {$lockDir} is not writable and could not be created");
         }
-        if (!$locked) $this->vpdo->log(rPDO::LOG_LEVEL_WARN, "Attempt to lock file {$file} failed");
+        if (!$locked) $this->rpdo->log(rPDO::LOG_LEVEL_WARN, "Attempt to lock file {$file} failed");
         return $locked;
     }
 
@@ -349,7 +349,7 @@ class rPDOCacheManager {
         if ($this->writeTree(dirname($target), $options)) {
             $existed= file_exists($target);
             if ($existed && $this->getOption('copy_newer_only', $options, false) && (($ttime = filemtime($target)) > ($stime = filemtime($source)))) {
-                $this->vpdo->log(rPDO::LOG_LEVEL_INFO, "xPDOCacheManager->copyFile(): Skipping copy of newer file {$target} ({$ttime}) from {$source} ({$stime})");
+                $this->rpdo->log(rPDO::LOG_LEVEL_INFO, "xPDOCacheManager->copyFile(): Skipping copy of newer file {$target} ({$ttime}) from {$source} ({$stime})");
             } else {
                 $copied= copy($source, $target);
             }
@@ -370,7 +370,7 @@ class rPDOCacheManager {
             }
         }
         if (!$copied) {
-            $this->vpdo->log(rPDO::LOG_LEVEL_ERROR, "xPDOCacheManager->copyFile(): Could not copy file {$source} to {$target}");
+            $this->rpdo->log(rPDO::LOG_LEVEL_ERROR, "xPDOCacheManager->copyFile(): Could not copy file {$source} to {$target}");
         }
         return $copied;
     }
@@ -402,7 +402,7 @@ class rPDOCacheManager {
                     $dirMode = $this->getOption('new_folder_permissions', $options, $this->getFolderPermissions());
                     if (is_string($dirMode)) $dirMode = octdec($dirMode);
                     if (! @ chmod($target, $dirMode)) {
-                        $this->vpdo->log(rPDO::LOG_LEVEL_ERROR, "{$target} is not writable and permissions could not be modified.");
+                        $this->rpdo->log(rPDO::LOG_LEVEL_ERROR, "{$target} is not writable and permissions could not be modified.");
                     }
                 }
                 if ($handle= @ opendir($source)) {
@@ -418,33 +418,33 @@ class rPDOCacheManager {
                         $to= $target . '/' . $item;
                         if (is_dir($from)) {
                             if (!($copied= $this->copyTree($from, $to, $options))) {
-                                $this->vpdo->log(rPDO::LOG_LEVEL_ERROR, "Could not copy directory {$from} to {$to}");
+                                $this->rpdo->log(rPDO::LOG_LEVEL_ERROR, "Could not copy directory {$from} to {$to}");
                                 $error = true;
                             } else {
                                 $copiedFiles = array_merge($copiedFiles, $copied);
                             }
                         } elseif (is_file($from)) {
                             if (!$copied= $this->copyFile($from, $to, $options)) {
-                                $this->vpdo->log(rPDO::LOG_LEVEL_ERROR, "Could not copy file {$from} to {$to}; could not create directory.");
+                                $this->rpdo->log(rPDO::LOG_LEVEL_ERROR, "Could not copy file {$from} to {$to}; could not create directory.");
                                 $error = true;
                             } else {
                                 $copiedFiles[] = $to;
                             }
                         } else {
-                            $this->vpdo->log(rPDO::LOG_LEVEL_ERROR, "Could not copy {$from} to {$to}");
+                            $this->rpdo->log(rPDO::LOG_LEVEL_ERROR, "Could not copy {$from} to {$to}");
                         }
                     }
                     @ closedir($handle);
                     if (!$error) $copiedFiles[] = $target;
                     $copied = $copiedFiles;
                 } else {
-                    $this->vpdo->log(rPDO::LOG_LEVEL_ERROR, "Could not read source directory {$source}");
+                    $this->rpdo->log(rPDO::LOG_LEVEL_ERROR, "Could not read source directory {$source}");
                 }
             } else {
-                $this->vpdo->log(rPDO::LOG_LEVEL_ERROR, "Could not create target directory {$target}");
+                $this->rpdo->log(rPDO::LOG_LEVEL_ERROR, "Could not create target directory {$target}");
             }
         } else {
-            $this->vpdo->log(rPDO::LOG_LEVEL_ERROR, "Source directory {$source} does not exist.");
+            $this->rpdo->log(rPDO::LOG_LEVEL_ERROR, "Source directory {$source} does not exist.");
         }
         return $copied;
     }
@@ -599,7 +599,7 @@ class rPDOCacheManager {
         //             if ($vk === 'vb') {
         //                 $source .= "\${$objName}->{$vk}= & \${$objRef};\n";
         //             }
-        //             elseif ($vk === 'vpdo') {
+        //             elseif ($vk === 'rpdo') {
         //                 $source .= "\${$objName}->{$vk}= & \${$objRef};\n";
         //             }
         //             elseif (!is_resource($vv)) {
@@ -684,7 +684,7 @@ class rPDOCacheManager {
             // }
             $return= $cache->set($key, $value, $lifetime, $options);
         } else {
-            $this->vpdo->log(rPDO::LOG_LEVEL_ERROR, 'No cache implementation found.');
+            $this->rpdo->log(rPDO::LOG_LEVEL_ERROR, 'No cache implementation found.');
         }
         return $return;
     }

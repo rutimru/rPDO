@@ -23,8 +23,8 @@ use rPDO\rPDO;
 class rPDOMemCache extends rPDOCache {
     protected $memcache = null;
 
-    public function __construct(& $xpdo, $options = array()) {
-        parent :: __construct($xpdo, $options);
+    public function __construct(& $rpdo, $options = array()) {
+        parent :: __construct($rpdo, $options);
         if (class_exists('Memcache', true)) {
             $this->memcache= new Memcache();
             if ($this->memcache) {
@@ -47,10 +47,10 @@ class rPDOMemCache extends rPDOCache {
                 $this->initialized = true;
             } else {
                 $this->memcache = null;
-                $this->vpdo->log(rPDO::LOG_LEVEL_ERROR, "xPDOMemCache[{$this->key}]: Error creating memcache provider for server(s): " . $this->getOption($this->key . '_memcached_server', $options, $this->getOption('memcached_server', $options, 'localhost:11211')));
+                $this->rpdo->log(rPDO::LOG_LEVEL_ERROR, "xPDOMemCache[{$this->key}]: Error creating memcache provider for server(s): " . $this->getOption($this->key . '_memcached_server', $options, $this->getOption('memcached_server', $options, 'localhost:11211')));
             }
         } else {
-            $this->vpdo->log(rPDO::LOG_LEVEL_ERROR, "xPDOMemCache[{$this->key}]: Error creating memcache provider; xPDOMemCache requires the PHP memcache extension.");
+            $this->rpdo->log(rPDO::LOG_LEVEL_ERROR, "xPDOMemCache[{$this->key}]: Error creating memcache provider; xPDOMemCache requires the PHP memcache extension.");
         }
     }
 

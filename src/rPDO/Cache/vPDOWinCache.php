@@ -26,7 +26,7 @@ class rPDOWinCache extends rPDOCache {
         if (function_exists('wincache_ucache_info')) {
             $this->initialized = true;
         } else {
-            $this->vpdo->log(rPDO::LOG_LEVEL_ERROR, "rPDOWinCache[{$this->key}]: Error creating wincache provider; rPDOWinCache requires the PHP wincache extension, version 1.1.0 or later.");
+            $this->rpdo->log(rPDO::LOG_LEVEL_ERROR, "rPDOWinCache[{$this->key}]: Error creating wincache provider; rPDOWinCache requires the PHP wincache extension, version 1.1.0 or later.");
         }
     }
 

@@ -19,13 +19,13 @@ use rPDO\rPDO;
  */
 abstract class rPDOCache {
     /** @var rPDO */
-    public $vpdo= null;
+    public $rpdo= null;
     protected $options= array();
     protected $key= '';
     protected $initialized= false;
 
-    public function __construct(& $vpdo, $options = array()) {
-        $this->vpdo= & $vpdo;
+    public function __construct(& $rpdo, $options = array()) {
+        $this->rpdo= & $rpdo;
         $this->options= $options;
         $this->key = $this->getOption(rPDO::OPT_CACHE_KEY, $options, 'default');
     }
@@ -40,7 +40,7 @@ abstract class rPDOCache {
     }
 
     /**
-     * Получите параметр из предоставленных опций, параметров кэширования или конфигурации vpdo.
+     * Получите параметр из предоставленных опций, параметров кэширования или конфигурации rpdo.
      *
      * @param string $key Уникальный идентификатор для опции.
      * @param array $options Набор явных параметров для переопределения параметров из rPDO или rPDOCache
@@ -64,7 +64,7 @@ abstract class rPDOCache {
             } elseif (is_array($this->options) && !empty($this->options) && array_key_exists($key, $this->options)) {
                 $option = $this->options[$key];
             } else {
-                $option = $this->vpdo->cacheManager->getOption($key, null, $default);
+                $option = $this->rpdo->cacheManager->getOption($key, null, $default);
             }
         }
         return $option;

@@ -24,7 +24,7 @@ class rPDOZip {
     const ALLOWED_EXTENSIONS = 'allowed_extensions';
     const EXCLUDE = 'exclude';
 
-    public $vpdo = null;
+    public $rpdo = null;
     protected $_filename = '';
     protected $_options = array();
     protected $_archive = null;
@@ -38,8 +38,8 @@ class rPDOZip {
      * @param string $filename The name of the archive the instance will represent.
      * @param array $options An array of options for this instance.
      */
-    public function __construct(rPDO &$vpdo, $filename, array $options = array()) {
-        $this->vpdo =& $vpdo;
+    public function __construct(rPDO &$rpdo, $filename, array $options = array()) {
+        $this->rpdo =& $rpdo;
         $this->_filename = is_string($filename) ? $filename : '';
         $this->_options = is_array($options) ? $options : array();
         $this->_archive = new \ZipArchive();
@@ -47,22 +47,22 @@ class rPDOZip {
             if (file_exists($this->_filename)) {
                 if ($this->getOption(rPDOZip::OVERWRITE, null, false) && is_writable($this->_filename)) {
                     if ($this->_archive->open($this->_filename, \ZipArchive::OVERWRITE) !== true) {
-                        $this->vpdo->log(rPDO::LOG_LEVEL_ERROR, "xPDOZip: Error opening archive at {$this->_filename} for OVERWRITE");
+                        $this->rpdo->log(rPDO::LOG_LEVEL_ERROR, "xPDOZip: Error opening archive at {$this->_filename} for OVERWRITE");
                     }
                 } else {
                     if ($this->_archive->open($this->_filename) !== true) {
-                        $this->vpdo->log(rPDO::LOG_LEVEL_ERROR, "xPDOZip: Error opening archive at {$this->_filename}");
+                        $this->rpdo->log(rPDO::LOG_LEVEL_ERROR, "xPDOZip: Error opening archive at {$this->_filename}");
                     }
                 }
             } elseif ($this->getOption(rPDOZip::CREATE, null, false) && is_writable(dirname($this->_filename))) {
                 if ($this->_archive->open($this->_filename, \ZipArchive::CREATE) !== true) {
-                    $this->vpdo->log(rPDO::LOG_LEVEL_ERROR, "xPDOZip: Could not create archive at {$this->_filename}");
+                    $this->rpdo->log(rPDO::LOG_LEVEL_ERROR, "xPDOZip: Could not create archive at {$this->_filename}");
                 }
             } else {
-                $this->vpdo->log(rPDO::LOG_LEVEL_ERROR, "xPDOZip: The location specified is not writable: {$this->_filename}");
+                $this->rpdo->log(rPDO::LOG_LEVEL_ERROR, "xPDOZip: The location specified is not writable: {$this->_filename}");
             }
         } else {
-            $this->vpdo->log(rPDO::LOG_LEVEL_ERROR, "xPDOZip: The location specified does not exist: {$this->_filename}");
+            $this->rpdo->log(rPDO::LOG_LEVEL_ERROR, "xPDOZip: The location specified does not exist: {$this->_filename}");
         }
     }
 
@@ -221,7 +221,7 @@ class rPDOZip {
             } elseif (is_array($this->_options) && !empty($this->_options) && array_key_exists($key, $this->_options)) {
                 $option = $this->_options[$key];
             } else {
-                $option = $this->vpdo->getOption($key, null, $default);
+                $option = $this->rpdo->getOption($key, null, $default);
             }
         }
         return $option;
@@ -256,7 +256,7 @@ class rPDOZip {
             $ext = pathinfo($filename, PATHINFO_EXTENSION);
             $ext = strtolower($ext);
             if (!in_array($ext, $allowedExtensions)) {
-                $this->vpdo->log(rPDO::LOG_LEVEL_WARN, $filename .' can\'t be extracted, because the file type is not allowed.');
+                $this->rpdo->log(rPDO::LOG_LEVEL_WARN, $filename .' can\'t be extracted, because the file type is not allowed.');
                 return false;
             }
         }

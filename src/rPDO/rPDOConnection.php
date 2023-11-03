@@ -23,7 +23,7 @@ class rPDOConnection {
     /**
      * @var rPDO Ссылка на действительный экземпляр rPDO.
      */
-    public $vpdo = null;
+    public $rpdo = null;
     /**
      * @var array Множество параметров конфигурации для этого подключения.
      */
@@ -41,16 +41,16 @@ class rPDOConnection {
     /**
      * Создайте новый экземпляр rPDOConnection.
      *
-     * @param rPDO $vpdo Ссылка на действительный экземпляр rPDO для присоединения.
+     * @param rPDO $rpdo Ссылка на действительный экземпляр rPDO для присоединения.
      * @param string $dsn Строка, представляющая строку подключения DSN.
      * @param string $username Учетные данные пользователя базы данных.
      * @param string $password Учетные данные для пароля базы данных.
      * @param array $options Множество опций rPDO для подключения.
      * @param array $driverOptions Множество опций драйвера PDO для подключения.
      */
-    public function __construct(rPDO &$vpdo, $dsn, $username= '', $password= '', $options= array(), $driverOptions= array()) {
-        $this->vpdo =& $vpdo;
-        if (is_array($this->vpdo->config)) $options= array_merge($this->vpdo->config, $options);
+    public function __construct(rPDO &$rpdo, $dsn, $username= '', $password= '', $options= array(), $driverOptions= array()) {
+        $this->rpdo =& $rpdo;
+        if (is_array($this->rpdo->config)) $options= array_merge($this->rpdo->config, $options);
         if (!isset($options[rPDO::OPT_TABLE_PREFIX])) $options[rPDO::OPT_TABLE_PREFIX]= '';
         $this->config= array_merge($options, rPDO::parseDSN($dsn));
         $this->config['dsn']= $dsn;
@@ -89,16 +89,16 @@ class rPDOConnection {
             try {
                 $this->pdo= new PDO($this->config['dsn'], $this->config['username'], $this->config['password'], $this->config['driverOptions']);
             } catch (PDOException $xe) {
-                $this->vpdo->log(rPDO::LOG_LEVEL_ERROR, $xe->getMessage(), '', __METHOD__, __FILE__, __LINE__);
+                $this->rpdo->log(rPDO::LOG_LEVEL_ERROR, $xe->getMessage(), '', __METHOD__, __FILE__, __LINE__);
                 return false;
             } catch (Exception $e) {
-                $this->vpdo->log(rPDO::LOG_LEVEL_ERROR, $e->getMessage(), '', __METHOD__, __FILE__, __LINE__);
+                $this->rpdo->log(rPDO::LOG_LEVEL_ERROR, $e->getMessage(), '', __METHOD__, __FILE__, __LINE__);
                 return false;
             }
 
             $connected= (is_object($this->pdo));
             if ($connected) {
-                $connectFile = VPDO_CORE_PATH . 'om/' . $this->config['dbtype'] . '/connect.inc.php';
+                $connectFile = RPDO_CORE_PATH . 'om/' . $this->config['dbtype'] . '/connect.inc.php';
                 if (!empty($this->config['connect_file']) && file_exists($this->config['connect_file'])) {
                     $connectFile = $this->config['connect_file'];
                 }
@@ -126,6 +126,6 @@ class rPDOConnection {
         } else {
             $options = $this->config;
         }
-        return $this->vpdo->getOption($key, $options, $default);
+        return $this->rpdo->getOption($key, $options, $default);
     }
 }

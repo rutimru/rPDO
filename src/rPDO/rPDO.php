@@ -14,7 +14,7 @@
  * @author Vitaly Surkov <surkov@rutim.ru>
  * @copyright Copyright (C) 2022-2023, Vitaly Surkov
  * @license http://opensource.org/licenses/gpl-2.0.php GNU Public License v2
- * @package vpdo
+ * @package rpdo
  */
 namespace rPDO;
 
@@ -25,12 +25,12 @@ use rPDO\Om\rPDOCriteria;
 use rPDO\Om\rPDOQuery;
 
 if (!defined('RPDO_CORE_PATH')) {
-    $vpdo_core_path= strtr(realpath(dirname(__FILE__)), '\\', '/') . '/';
+    $rpdo_core_path= strtr(realpath(dirname(__FILE__)), '\\', '/') . '/';
     /**
      * @var string Полный путь к корневому каталогу rPDO.
      */
-    define('RPDO_CORE_PATH', $vpdo_core_path);
-    unset($vpdo_core_path);
+    define('RPDO_CORE_PATH', $rpdo_core_path);
+    unset($rpdo_core_path);
 }
 if (!defined('RPDO_CLI_MODE')) {
     /**
@@ -54,7 +54,7 @@ if (!defined('RPDO_CLI_MODE')) {
  * их собственные контейнеры (базы данных, таблицы, столбцы и т.д.) или изменения в них,
  * и многое другое.
  *
- * @package vpdo
+ * @package rpdo
  */
 #[\AllowDynamicProperties]
 class rPDO {
@@ -471,7 +471,7 @@ class rPDO {
         $added= false;
         if (is_string($pkg) && !empty($pkg)) {
             if (!is_string($path) || empty($path)) {
-                $this->log(rPDO::LOG_LEVEL_ERROR, "Invalid path specified for package: {$pkg}; using default vpdo model path: " . RPDO_CORE_PATH . 'Om/');
+                $this->log(rPDO::LOG_LEVEL_ERROR, "Invalid path specified for package: {$pkg}; using default rpdo model path: " . RPDO_CORE_PATH . 'Om/');
                 $path= RPDO_CORE_PATH . 'Om/';
             }
             if (!is_dir($path)) {
@@ -508,19 +508,19 @@ class rPDO {
             }
             $mapFile = $path . $pkgPath . '/metadata.' . $this->config['dbtype'] . '.php';
             if (file_exists($mapFile)) {
-                $vpdo_meta_map = array();
+                $rpdo_meta_map = array();
                 include $mapFile;
-                if (!empty($vpdo_meta_map)) {
-                    if (isset($vpdo_meta_map['version'])) {
-                        if (version_compare($vpdo_meta_map['version'], '3.0', '>=')) {
-                            $namespacePrefix = isset($vpdo_meta_map['namespacePrefix']) && !empty($vpdo_meta_map['namespacePrefix'])
-                                ? $vpdo_meta_map['namespacePrefix'] . '\\'
+                if (!empty($rpdo_meta_map)) {
+                    if (isset($rpdo_meta_map['version'])) {
+                        if (version_compare($rpdo_meta_map['version'], '3.0', '>=')) {
+                            $namespacePrefix = isset($rpdo_meta_map['namespacePrefix']) && !empty($rpdo_meta_map['namespacePrefix'])
+                                ? $rpdo_meta_map['namespacePrefix'] . '\\'
                                 : '';
                             self::getLoader()->addPsr4($namespacePrefix, $path);
-                            $vpdo_meta_map = $vpdo_meta_map['class_map'];
+                            $rpdo_meta_map = $rpdo_meta_map['class_map'];
                         }
                     }
-                    foreach ($vpdo_meta_map as $className => $extends) {
+                    foreach ($rpdo_meta_map as $className => $extends) {
                         if (!isset($this->classMap[$className])) {
                             $this->classMap[$className] = array();
                         }
@@ -689,15 +689,15 @@ class rPDO {
         if ($class && !$transient && !isset ($this->map[$class])) {
             $mapfile= strtr($fqn, '.', '/') . '.map.inc.php';
             if (file_exists($path . $mapfile)) {
-                $vpdo_meta_map= array();
+                $rpdo_meta_map= array();
                 $rt= include ($path . $mapfile);
-                if (!$rt || !isset($vpdo_meta_map[$class])) {
+                if (!$rt || !isset($rpdo_meta_map[$class])) {
                     $this->log(rPDO::LOG_LEVEL_WARN, "Could not load metadata map {$mapfile} for class {$class} from {$fqn}");
                 } else {
-                    if (!array_key_exists('fieldAliases', $vpdo_meta_map[$class])) {
-                        $vpdo_meta_map[$class]['fieldAliases'] = array();
+                    if (!array_key_exists('fieldAliases', $rpdo_meta_map[$class])) {
+                        $rpdo_meta_map[$class]['fieldAliases'] = array();
                     }
-                    $this->map[$class] = $vpdo_meta_map[$class];
+                    $this->map[$class] = $rpdo_meta_map[$class];
                 }
             }
         }
@@ -2645,8 +2645,8 @@ class rPDO {
      * @return Om\rPDOQuery Результирующий экземпляр rPDOQuery или false в случае неудачи.
      */
     public function newQuery($class, $criteria= null, $cacheFlag= true) {
-        $vpdoQueryClass= '\\rPDO\\Om\\' . $this->config['dbtype'] . '\\rPDOQuery';
-        if ($query= new $vpdoQueryClass($this, $class, $criteria)) {
+        $rpdoQueryClass= '\\rPDO\\Om\\' . $this->config['dbtype'] . '\\rPDOQuery';
+        if ($query= new $rpdoQueryClass($this, $class, $criteria)) {
             $query->cacheFlag= $cacheFlag;
         }
         return $query;
