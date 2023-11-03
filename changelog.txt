@@ -1,5 +1,9 @@
 This file shows the changes in this release of rPDO.
 
+rPDO 1.0.5 (03 Ноября 2023)
+====================================
+- fix vPDO
+
 rPDO 1.0.4 (03 Ноября 2023)
 ====================================
 - Обновлен Composer
